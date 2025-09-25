@@ -1,5 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
-import Comment from '#models/comment'
+import { CommentService } from '../services/comment_service.js'
 import {
   createCommentValidator,
   editCommentValidator,
@@ -9,81 +9,97 @@ import {
 } from '#validators/comment'
 
 export default class CommentsController {
+  constructor(private commentService: CommentService) {}
+
   async store({ request, response }: HttpContext) {
     const { postId } = await request.validateUsing(postIdValidator, {
       data: request.params(),
     })
     const payload = await request.validateUsing(createCommentValidator)
-    const comment = await Comment.create({ postId, ...payload })
 
-    return response.json(comment)
+    try {
+      if (payload.parentId) {
+        await this.commentService.getParentCommentById(payload.parentId)
+      }
+
+      const comment = await this.commentService.createComment({ postId, ...payload })
+
+      return response.json(comment)
+    } catch (error) {
+      return response.status(400).json({ error: error.message })
+    }
   }
 
   async edit({ request, response }: HttpContext) {
     const { commentId } = await request.validateUsing(commentIdValidator, {
       data: request.params(),
     })
-    const comment = await Comment.find(commentId)
-    if (!comment) {
-      return response.status(404).json({ error: 'Comment not found' })
-    }
     const payload = await request.validateUsing(editCommentValidator)
-    comment.text = payload.text
-    await comment.save()
 
-    return response.json(comment)
+    try {
+      const updatedComment = await this.commentService.updateComment(commentId, {
+        text: payload.text,
+      })
+      return response.json(updatedComment)
+    } catch (error) {
+      return response.status(404).json({ error: error.message })
+    }
   }
 
   async editApproval({ request, response }: HttpContext) {
     const { commentId } = await request.validateUsing(commentIdValidator, {
       data: request.params(),
     })
-    const comment = await Comment.find(commentId)
-    if (!comment) {
-      return response.status(404).json({ error: 'Comment not found' })
-    }
     const payload = await request.validateUsing(editApprovalValidator)
-    comment.status = payload.status
-    await comment.save()
 
-    return response.json(comment)
+    try {
+      const updatedComment = await this.commentService.updateComment(commentId, {
+        status: payload.status,
+      })
+      return response.json(updatedComment)
+    } catch (error) {
+      return response.status(404).json({ error: error.message })
+    }
   }
 
   async destroy({ request, response }: HttpContext) {
     const { commentId } = await request.validateUsing(commentIdValidator, {
       data: request.params(),
     })
-    const comment = await Comment.find(commentId)
-    if (!comment) {
-      return response.status(404).json({ error: 'Comment not found' })
-    }
-    comment.deleted = true
-    await comment.save()
 
-    return response.json({ message: 'Comment deleted' })
+    try {
+      await this.commentService.deleteComment(commentId)
+      return response.json({ message: 'Comment deleted' })
+    } catch (error) {
+      return response.status(404).json({ error: error.message })
+    }
   }
 
   async index({ request, response }: HttpContext) {
     const { postId } = await request.validateUsing(postIdValidator, {
       data: request.params(),
     })
-    const comments = await Comment.query()
-      .where('postId', postId)
-      .where('deleted', false)
-      .where('status', 'approved')
 
-    return response.json(comments)
+    try {
+      const comments = await this.commentService.getCommentsByPostId(postId)
+
+      return response.json(comments)
+    } catch (error) {
+      return response.status(400).json({ error: error.message })
+    }
   }
 
   async pending({ request, response }: HttpContext) {
     const { postId } = await request.validateUsing(postIdValidator, {
       data: request.params(),
     })
-    const comments = await Comment.query()
-      .where('postId', postId)
-      .where('deleted', false)
-      .where('status', 'pending')
 
-    return response.json(comments)
+    try {
+      const comments = await this.commentService.getPendingCommentsByPostId(postId)
+
+      return response.json(comments)
+    } catch (error) {
+      return response.status(400).json({ error: error.message })
+    }
   }
 }
