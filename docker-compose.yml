@@ -10,5 +10,16 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  app:
+    container_name: adonis_app
+    restart: always
+    build:
+      context: .
+      target: production
+    ports:
+      - 3333:3333
+    env_file:
+      - .env
+
 volumes:
   postgres_data:
