@@ -1,9 +1,16 @@
 import type { CommentInterface, CommentRepositoryInterface } from '#interfaces/comment_interface'
 
 export class CommentService {
-  constructor(private commentRepository: CommentRepositoryInterface) {}
+  constructor(protected commentRepository: CommentRepositoryInterface) {}
 
   async createComment(commentData: Partial<CommentInterface>): Promise<CommentInterface> {
+    if (commentData.parentId) {
+      const parentComment = await this.getParentCommentById(commentData.parentId)
+      if (!parentComment) {
+        throw new Error('Parent comment not found')
+      }
+    }
+
     return await this.commentRepository.createComment(commentData)
   }
 

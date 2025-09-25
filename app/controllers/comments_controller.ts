@@ -18,10 +18,6 @@ export default class CommentsController {
     const payload = await request.validateUsing(createCommentValidator)
 
     try {
-      if (payload.parentId) {
-        await this.commentService.getParentCommentById(payload.parentId)
-      }
-
       const comment = await this.commentService.createComment({ postId, ...payload })
 
       return response.json(comment)
