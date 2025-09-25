@@ -50,7 +50,7 @@ export class CommentService {
       throw new Error('Comment not found')
     }
 
-    const deleted = await this.commentRepository.deleteComment(id)
+    const deleted = await this.commentRepository.softDelete(id)
     if (!deleted) {
       throw new Error('Failed to delete comment')
     }
@@ -62,17 +62,5 @@ export class CommentService {
 
   async getPendingCommentsByPostId(postId: number): Promise<CommentInterface[]> {
     return await this.commentRepository.getPendingCommentsByPostId(postId)
-  }
-
-  async getCommentsByAuthorId(authorId: number): Promise<CommentInterface[]> {
-    return await this.commentRepository.getCommentsByAuthorId(authorId)
-  }
-
-  async getCommentsByStatus(status: string): Promise<CommentInterface[]> {
-    return await this.commentRepository.getCommentsByStatus(status)
-  }
-
-  async getCommentsByDate(date: Date): Promise<CommentInterface[]> {
-    return await this.commentRepository.getCommentsByDate(date)
   }
 }

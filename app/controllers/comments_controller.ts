@@ -1,5 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
-import { CommentService } from '../services/comment_service.js'
+import type { CommentService } from '../services/comment_service.js'
 import {
   createCommentValidator,
   editCommentValidator,

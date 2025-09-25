@@ -27,7 +27,7 @@ export class CommentRepository implements CommentRepositoryInterface {
     return this.mapModelToInterface(comment)
   }
 
-  async deleteComment(id: number): Promise<boolean> {
+  async softDelete(id: number): Promise<boolean> {
     const comment = await Comment.find(id)
     if (!comment) {
       return false
@@ -43,23 +43,6 @@ export class CommentRepository implements CommentRepositoryInterface {
       .where('postId', postId)
       .where('deleted', false)
       .where('status', 'approved')
-
-    return comments.map((comment) => this.mapModelToInterface(comment))
-  }
-
-  async getCommentsByAuthorId(authorId: number): Promise<CommentInterface[]> {
-    const comments = await Comment.query().where('authorId', authorId).where('deleted', false)
-    return comments.map((comment) => this.mapModelToInterface(comment))
-  }
-
-  async getCommentsByStatus(status: string): Promise<CommentInterface[]> {
-    const comments = await Comment.query().where('status', status).where('deleted', false)
-
-    return comments.map((comment) => this.mapModelToInterface(comment))
-  }
-
-  async getCommentsByDate(date: Date): Promise<CommentInterface[]> {
-    const comments = await Comment.query().where('createdAt', '>=', date).where('deleted', false)
 
     return comments.map((comment) => this.mapModelToInterface(comment))
   }
