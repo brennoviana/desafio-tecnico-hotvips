@@ -2,6 +2,8 @@ import Comment from '#models/comment'
 import type { CommentInterface, CommentRepositoryInterface } from '#interfaces/comment_interface'
 
 export class CommentRepository implements CommentRepositoryInterface {
+  
+
   async createComment(commentData: Partial<CommentInterface>): Promise<CommentInterface> {
     const { createdAt, updatedAt, ...data } = commentData
     const comment = await Comment.create(data)
@@ -9,7 +11,7 @@ export class CommentRepository implements CommentRepositoryInterface {
   }
 
   async getCommentById(id: number): Promise<CommentInterface | null> {
-    const comment = await Comment.find(id)
+    const comment = await Comment.query().where('commentId', id).where('deleted', false).first()
     return comment ? this.mapModelToInterface(comment) : null
   }
 
@@ -17,7 +19,7 @@ export class CommentRepository implements CommentRepositoryInterface {
     id: number,
     commentData: Partial<CommentInterface>
   ): Promise<CommentInterface | null> {
-    const comment = await Comment.find(id)
+    const comment = await Comment.query().where('commentId', id).where('deleted', false).first()
     if (!comment) {
       return null
     }
@@ -28,7 +30,7 @@ export class CommentRepository implements CommentRepositoryInterface {
   }
 
   async softDelete(id: number): Promise<boolean> {
-    const comment = await Comment.find(id)
+    const comment = await Comment.query().where('commentId', id).where('deleted', false).first()
     if (!comment) {
       return false
     }
