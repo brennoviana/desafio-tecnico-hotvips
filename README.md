@@ -47,6 +47,9 @@ Sistema de comentários robusto e escalável desenvolvido com AdonisJS, TypeScri
 git clone <repository-url>
 cd desafio-tecnico-hotvips
 
+# Configure as variáveis de ambiente
+cp .env.docker.example .env
+
 # Execute com Docker Compose
 docker-compose up -d
 
@@ -59,6 +62,9 @@ docker-compose up -d
 # Clone o repositório
 git clone <repository-url>
 cd desafio-tecnico-hotvips
+
+# Configure as variáveis de ambiente
+cp .env.local.example .env
 
 # Instale as dependências
 npm install
