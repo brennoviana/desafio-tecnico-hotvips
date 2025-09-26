@@ -22,7 +22,7 @@ export default class CommentsController {
 
       return response.json(comment)
     } catch (error) {
-      return response.status(400).json({ error: error.message })
+      return response.status(400).json({ error: 'Failed to create comment'})
     }
   }
 
@@ -38,7 +38,7 @@ export default class CommentsController {
       })
       return response.json(updatedComment)
     } catch (error) {
-      return response.status(404).json({ error: error.message })
+      return response.status(404).json({ error: 'Failed to update comment'})
     }
   }
 
@@ -54,7 +54,7 @@ export default class CommentsController {
       })
       return response.json(updatedComment)
     } catch (error) {
-      return response.status(404).json({ error: error.message })
+      return response.status(404).json({ error: 'Failed to update comment approval'})
     }
   }
 
@@ -67,7 +67,7 @@ export default class CommentsController {
       await this.commentService.deleteComment(commentId)
       return response.json({ message: 'Comment deleted' })
     } catch (error) {
-      return response.status(404).json({ error: error.message })
+      return response.status(404).json({ error: 'Failed to delete comment'})
     }
   }
 
@@ -81,7 +81,7 @@ export default class CommentsController {
 
       return response.json(comments)
     } catch (error) {
-      return response.status(400).json({ error: error.message })
+      return response.status(400).json({ error: 'Failed to get comments'})
     }
   }
 
@@ -95,7 +95,7 @@ export default class CommentsController {
 
       return response.json(comments)
     } catch (error) {
-      return response.status(400).json({ error: error.message })
+      return response.status(400).json({ error: 'Failed to get pending comments'})
     }
   }
 }

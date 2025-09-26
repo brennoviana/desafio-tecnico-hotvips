@@ -1,19 +1,118 @@
 {
 	"info": {
 		"_postman_id": "8cdfcc12-96d8-460b-a469-fb31f46743dc",
-		"name": "HotVips",
+		"name": "HotVips - Sistema de Comentários",
+		"description": "Collection completa para testar a API do sistema de comentários HotVips.\n\n## Funcionalidades\n- Criar comentários com suporte a hierarquia (parent/child)\n- Listar comentários por post\n- Moderar comentários (aprovar/rejeitar)\n- Editar e deletar comentários\n- Sistema de status (pending, approved, rejected)\n\n## Configuração\n1. Certifique-se de que a aplicação está rodando em http://localhost:3333\n2. Configure as variáveis de ambiente se necessário\n3. Execute o health check primeiro para verificar se tudo está funcionando\n\n## Uso\n1. Comece criando um comentário\n2. Use os endpoints de listagem para verificar\n3. Teste a moderação com approve/reject\n4. Experimente criar comentários hierárquicos usando parentId\n\nDesenvolvido com AdonisJS + TypeScript + PostgreSQL",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "47327885"
 	},
 	"item": [
 		{
-			"name": "Create comment",
+			"name": "Health Check",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response has status ok\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.status).to.eql(\"ok\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/health",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"health"
+					]
+				},
+				"description": "Verifica se a aplicação está funcionando corretamente.\n\n**Resposta esperada:**\n```json\n{\n  \"status\": \"ok\"\n}\n```"
+			},
+			"response": [
+				{
+					"name": "Success",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3333/health",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3333",
+							"path": [
+								"health"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"status\": \"ok\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Criar Comentário",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response contains comment data\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('commentId');",
+							"    pm.expect(jsonData).to.have.property('postId');",
+							"    pm.expect(jsonData).to.have.property('authorId');",
+							"    pm.expect(jsonData).to.have.property('text');",
+							"    pm.expect(jsonData).to.have.property('status');",
+							"});",
+							"",
+							"// Salva o commentId para uso em outros requests",
+							"if (pm.response.json().commentId) {",
+							"    pm.environment.set(\"commentId\", pm.response.json().commentId);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"authorId\": 1,\r\n    \"text\": \"comentário até 1024 caracteres\",\r\n    // \"parentId\":\"22\",\r\n    \"status\": \"pending\"\r\n}",
+					"raw": "{\n    \"authorId\": 1,\n    \"text\": \"Este é um comentário de exemplo para demonstrar a funcionalidade da API. Pode ter até 1024 caracteres.\",\n    \"status\": \"pending\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -21,96 +120,320 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:3333/api/v1/posts/:postId/comments",
-					"protocol": "http",
+					"raw": "{{baseUrl}}/api/v1/posts/{{postId}}/comments",
 					"host": [
-						"localhost"
+						"{{baseUrl}}"
 					],
-					"port": "3333",
 					"path": [
 						"api",
 						"v1",
 						"posts",
-						":postId",
+						"{{postId}}",
 						"comments"
-					],
-					"variable": [
-						{
-							"key": "postId",
-							"value": "2"
-						}
 					]
+				},
+				"description": "Cria um novo comentário para um post específico.\n\n**Parâmetros obrigatórios:**\n- `authorId`: ID do autor (número positivo)\n- `text`: Texto do comentário (1-1024 caracteres)\n\n**Parâmetros opcionais:**\n- `status`: Status inicial do comentário (`pending`, `approved`, `rejected`)\n- `parentId`: ID do comentário pai (para criar respostas)\n\n**Exemplo de resposta:**\n```json\n{\n  \"commentId\": 123,\n  \"postId\": 1,\n  \"authorId\": 1,\n  \"text\": \"Texto do comentário\",\n  \"status\": \"pending\",\n  \"parentId\": null,\n  \"deleted\": false,\n  \"createdAt\": \"2023-10-01T12:00:00.000Z\",\n  \"updatedAt\": \"2023-10-01T12:00:00.000Z\"\n}\n```"
+			},
+			"response": [
+				{
+					"name": "Comentário criado com sucesso",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"authorId\": 1,\n    \"text\": \"Este é um comentário de exemplo\",\n    \"status\": \"pending\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3333/api/v1/posts/1/comments",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3333",
+							"path": [
+								"api",
+								"v1",
+								"posts",
+								"1",
+								"comments"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"commentId\": 123,\n  \"postId\": 1,\n  \"authorId\": 1,\n  \"text\": \"Este é um comentário de exemplo\",\n  \"status\": \"pending\",\n  \"parentId\": null,\n  \"deleted\": false,\n  \"createdAt\": \"2023-10-01T12:00:00.000Z\",\n  \"updatedAt\": \"2023-10-01T12:00:00.000Z\"\n}"
 				}
+			]
+		},
+		{
+			"name": "Criar Comentário Filho (Resposta)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response is a child comment\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('parentId');",
+							"    pm.expect(jsonData.parentId).to.not.be.null;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"authorId\": 2,\n    \"text\": \"Esta é uma resposta ao comentário acima. Demonstra a funcionalidade de comentários hierárquicos.\",\n    \"status\": \"pending\",\n    \"parentId\": {{commentId}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/posts/{{postId}}/comments",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"posts",
+						"{{postId}}",
+						"comments"
+					]
+				},
+				"description": "Cria um comentário filho (resposta) vinculado a um comentário pai.\n\n**Nota importante:** \n- O `parentId` deve ser um comentário existente\n- O comentário pai deve pertencer ao mesmo post\n- Suporta múltiplos níveis de hierarquia\n\n**Dica:** Execute primeiro \"Criar Comentário\" para ter um comentário pai disponível."
 			},
 			"response": []
 		},
 		{
-			"name": "Get comments",
+			"name": "Listar Comentários do Post",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response is an array\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.be.an('array');",
+							"});",
+							"",
+							"pm.test(\"Comments belong to correct post\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    if (jsonData.length > 0) {",
+							"        jsonData.forEach(function(comment) {",
+							"            pm.expect(comment.postId).to.eql(parseInt(pm.variables.get('postId')));",
+							"        });",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:3333/api/v1/posts/:postId/comments",
-					"protocol": "http",
+					"raw": "{{baseUrl}}/api/v1/posts/{{postId}}/comments",
 					"host": [
-						"localhost"
+						"{{baseUrl}}"
 					],
-					"port": "3333",
 					"path": [
 						"api",
 						"v1",
 						"posts",
-						":postId",
+						"{{postId}}",
 						"comments"
-					],
-					"variable": [
-						{
-							"key": "postId",
-							"value": ""
-						}
 					]
-				}
+				},
+				"description": "Lista todos os comentários de um post específico.\n\n**Retorna:**\n- Array com todos os comentários do post\n- Inclui comentários de todos os status (pending, approved, rejected)\n- Mantém estrutura hierárquica com parentId\n\n**Exemplo de resposta:**\n```json\n[\n  {\n    \"commentId\": 123,\n    \"postId\": 1,\n    \"authorId\": 1,\n    \"text\": \"Comentário principal\",\n    \"status\": \"approved\",\n    \"parentId\": null,\n    \"deleted\": false,\n    \"createdAt\": \"2023-10-01T12:00:00.000Z\",\n    \"updatedAt\": \"2023-10-01T12:00:00.000Z\"\n  },\n  {\n    \"commentId\": 124,\n    \"postId\": 1,\n    \"authorId\": 2,\n    \"text\": \"Resposta ao comentário\",\n    \"status\": \"pending\",\n    \"parentId\": 123,\n    \"deleted\": false,\n    \"createdAt\": \"2023-10-01T12:05:00.000Z\",\n    \"updatedAt\": \"2023-10-01T12:05:00.000Z\"\n  }\n]\n```"
 			},
-			"response": []
+			"response": [
+				{
+					"name": "Lista de comentários",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3333/api/v1/posts/1/comments",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3333",
+							"path": [
+								"api",
+								"v1",
+								"posts",
+								"1",
+								"comments"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "[\n  {\n    \"commentId\": 123,\n    \"postId\": 1,\n    \"authorId\": 1,\n    \"text\": \"Comentário principal\",\n    \"status\": \"approved\",\n    \"parentId\": null,\n    \"deleted\": false,\n    \"createdAt\": \"2023-10-01T12:00:00.000Z\",\n    \"updatedAt\": \"2023-10-01T12:00:00.000Z\"\n  }\n]"
+				}
+			]
 		},
 		{
-			"name": "Get comments Pending",
+			"name": "Listar Comentários Pendentes",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"All comments have pending status\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    if (jsonData.length > 0) {",
+							"        jsonData.forEach(function(comment) {",
+							"            pm.expect(comment.status).to.eql('pending');",
+							"        });",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:3333/api/v1/posts/:postId/comments/pending",
-					"protocol": "http",
+					"raw": "{{baseUrl}}/api/v1/posts/{{postId}}/comments/pending",
 					"host": [
-						"localhost"
+						"{{baseUrl}}"
 					],
-					"port": "3333",
 					"path": [
 						"api",
 						"v1",
 						"posts",
-						":postId",
+						"{{postId}}",
 						"comments",
 						"pending"
-					],
-					"variable": [
-						{
-							"key": "postId",
-							"value": "2"
-						}
 					]
-				}
+				},
+				"description": "Lista apenas os comentários pendentes de moderação para um post específico.\n\n**Funcionalidade:**\n- Filtra comentários com status 'pending'\n- Útil para painéis de moderação\n- Permite revisão antes da aprovação/rejeição\n\n**Casos de uso:**\n- Dashboard de moderadores\n- Fila de aprovação de comentários\n- Notificações de novos comentários"
 			},
-			"response": []
+			"response": [
+				{
+					"name": "Comentários pendentes",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3333/api/v1/posts/1/comments/pending",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3333",
+							"path": [
+								"api",
+								"v1",
+								"posts",
+								"1",
+								"comments",
+								"pending"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "[\n  {\n    \"commentId\": 124,\n    \"postId\": 1,\n    \"authorId\": 2,\n    \"text\": \"Comentário aguardando aprovação\",\n    \"status\": \"pending\",\n    \"parentId\": null,\n    \"deleted\": false,\n    \"createdAt\": \"2023-10-01T12:05:00.000Z\",\n    \"updatedAt\": \"2023-10-01T12:05:00.000Z\"\n  }\n]"
+				}
+			]
 		},
 		{
-			"name": "Edit comment",
+			"name": "Editar Comentário",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Comment text was updated\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('text');",
+							"    pm.expect(jsonData.updatedAt).to.not.be.null;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "PUT",
-				"header": [],
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"text\": \"novo texto até 1024 carac222teres\"\r\n}",
+					"raw": "{\n    \"text\": \"Texto do comentário foi editado e atualizado. Esta é a nova versão do comentário com conteúdo modificado.\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -118,93 +441,350 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:3333/api/v1/comments/:commentId",
-					"protocol": "http",
+					"raw": "{{baseUrl}}/api/v1/comments/{{commentId}}",
 					"host": [
-						"localhost"
+						"{{baseUrl}}"
 					],
-					"port": "3333",
 					"path": [
 						"api",
 						"v1",
 						"comments",
-						":commentId"
-					],
-					"variable": [
-						{
-							"key": "commentId",
-							"value": "2"
-						}
+						"{{commentId}}"
 					]
+				},
+				"description": "Atualiza o texto de um comentário existente.\n\n**Parâmetros:**\n- `text`: Novo texto do comentário (1-1024 caracteres)\n\n**Regras:**\n- Apenas o texto pode ser editado via este endpoint\n- O comentário deve existir\n- Atualiza automaticamente o timestamp `updatedAt`\n\n**Nota:** Para alterar o status (aprovação/rejeição), use o endpoint específico de moderação."
+			},
+			"response": [
+				{
+					"name": "Comentário editado com sucesso",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"text\": \"Texto do comentário foi editado\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3333/api/v1/comments/123",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3333",
+							"path": [
+								"api",
+								"v1",
+								"comments",
+								"123"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"commentId\": 123,\n  \"postId\": 1,\n  \"authorId\": 1,\n  \"text\": \"Texto do comentário foi editado\",\n  \"status\": \"pending\",\n  \"parentId\": null,\n  \"deleted\": false,\n  \"createdAt\": \"2023-10-01T12:00:00.000Z\",\n  \"updatedAt\": \"2023-10-01T12:10:00.000Z\"\n}"
 				}
+			]
+		},
+		{
+			"name": "Aprovar Comentário",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Comment status was updated to approved\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.status).to.eql('approved');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"status\": \"approved\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/comments/{{commentId}}/approval",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"comments",
+						"{{commentId}}",
+						"approval"
+					]
+				},
+				"description": "Aprova um comentário, alterando seu status para 'approved'.\n\n**Status disponíveis:**\n- `pending`: Aguardando moderação\n- `approved`: Comentário aprovado e visível\n- `rejected`: Comentário rejeitado\n\n**Fluxo de moderação:**\n1. Comentário criado → status 'pending'\n2. Moderador revisa → aprova ou rejeita\n3. Status alterado → comentário fica visível/invisível"
+			},
+			"response": [
+				{
+					"name": "Comentário aprovado",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"approved\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3333/api/v1/comments/123/approval",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3333",
+							"path": [
+								"api",
+								"v1",
+								"comments",
+								"123",
+								"approval"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"commentId\": 123,\n  \"postId\": 1,\n  \"authorId\": 1,\n  \"text\": \"Comentário aprovado\",\n  \"status\": \"approved\",\n  \"parentId\": null,\n  \"deleted\": false,\n  \"createdAt\": \"2023-10-01T12:00:00.000Z\",\n  \"updatedAt\": \"2023-10-01T12:15:00.000Z\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Rejeitar Comentário",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Comment status was updated to rejected\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.status).to.eql('rejected');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"status\": \"rejected\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/comments/{{commentId}}/approval",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"comments",
+						"{{commentId}}",
+						"approval"
+					]
+				},
+				"description": "Rejeita um comentário, alterando seu status para 'rejected'.\n\n**Quando usar:**\n- Comentário contém conteúdo inapropriado\n- Viola termos de uso\n- Spam ou conteúdo irrelevante\n- Linguagem ofensiva\n\n**Efeito:**\n- Comentário permanece no banco (não é deletado)\n- Fica invisível para usuários finais\n- Pode ser revertido posteriormente se necessário"
 			},
 			"response": []
 		},
 		{
-			"name": "Delete comment",
+			"name": "Deletar Comentário (Soft Delete)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Success message returned\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.message).to.eql('Comment deleted');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:3333/api/v1/comments/:commentId",
-					"protocol": "http",
+					"raw": "{{baseUrl}}/api/v1/comments/{{commentId}}",
 					"host": [
-						"localhost"
+						"{{baseUrl}}"
 					],
-					"port": "3333",
 					"path": [
 						"api",
 						"v1",
 						"comments",
-						":commentId"
-					],
-					"variable": [
-						{
-							"key": "commentId",
-							"value": "2"
-						}
+						"{{commentId}}"
 					]
-				}
+				},
+				"description": "Remove um comentário usando soft delete.\n\n**Soft Delete:**\n- Comentário não é removido fisicamente do banco\n- Campo 'deleted' é marcado como true\n- Preserva integridade referencial\n- Permite auditoria e recuperação\n\n**Vantagens:**\n- Mantém histórico completo\n- Não quebra relacionamentos parent/child\n- Permite reversão se necessário\n- Facilita análises e relatórios\n\n**Resposta:**\n```json\n{\n  \"message\": \"Comment deleted\"\n}\n```"
 			},
-			"response": []
+			"response": [
+				{
+					"name": "Comentário deletado com sucesso",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3333/api/v1/comments/123",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3333",
+							"path": [
+								"api",
+								"v1",
+								"comments",
+								"123"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"message\": \"Comment deleted\"\n}"
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Configuração automática de variáveis se não existirem",
+					"if (!pm.environment.get('baseUrl')) {",
+					"    pm.environment.set('baseUrl', 'http://localhost:3333');",
+					"}",
+					"",
+					"if (!pm.environment.get('postId')) {",
+					"    pm.environment.set('postId', '1');",
+					"}",
+					"",
+					"if (!pm.environment.get('commentId')) {",
+					"    pm.environment.set('commentId', '1');",
+					"}"
+				]
+			}
 		},
 		{
-			"name": "Aprove or reject comment",
-			"request": {
-				"method": "PATCH",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"status\": \"rejected\"\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "http://localhost:3333/api/v1/comments/:commentId/approval",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "3333",
-					"path": [
-						"api",
-						"v1",
-						"comments",
-						":commentId",
-						"approval"
-					],
-					"variable": [
-						{
-							"key": "commentId",
-							"value": "2"
-						}
-					]
-				}
-			},
-			"response": []
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Verificações globais para todas as requisições",
+					"pm.test(\"Response time is less than 2000ms\", function () {",
+					"    pm.expect(pm.response.responseTime).to.be.below(2000);",
+					"});",
+					"",
+					"pm.test(\"Response has valid JSON\", function () {",
+					"    pm.response.to.be.json;",
+					"});"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3333",
+			"type": "string"
+		},
+		{
+			"key": "postId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "commentId",
+			"value": "1",
+			"type": "string"
 		}
 	]
 }
