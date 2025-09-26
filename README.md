@@ -88,6 +88,12 @@ CREATE TABLE comments (
 );
 ```
 
+## URL de Teste
+
+Para testar a API diretamente, você pode usar a URL disponibilizada:
+
+**URL de Teste:** http://34.55.170.193:3333/api/v1
+
 ## Collection Postman
 
 O projeto inclui uma collection completa do Postman (`HotVips.postman_collection.json`) com todos os endpoints configurados.
