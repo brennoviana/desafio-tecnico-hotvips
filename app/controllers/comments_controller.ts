@@ -71,7 +71,7 @@ export default class CommentsController {
 
     try {
       await this.commentService.deleteComment(commentId)
-      logger.info({ commentId }, 'Comment deleted')
+      logger.info({ commentId }, 'Deleting comment')
       return response.json({ message: 'Comment deleted' })
     } catch (error) {
       logger.error(error)
@@ -86,7 +86,7 @@ export default class CommentsController {
 
     try {
       const comments = await this.commentService.getCommentsByPostId(postId)
-      logger.info({ postId }, 'Comments fetched')
+      logger.info({ postId }, 'Getting comments')
       return response.json(comments)
     } catch (error) {
       logger.error(error)
@@ -101,7 +101,7 @@ export default class CommentsController {
 
     try {
       const comments = await this.commentService.getPendingCommentsByPostId(postId)
-      logger.info({ postId }, 'Pending comments fetched')
+      logger.info({ postId }, 'Getting pending comments')
       return response.json(comments)
     } catch (error) {
       logger.error(error)
