@@ -70,6 +70,12 @@ npm run dev
 node ace test
 ```
 
+## URL de Teste
+
+Para testar a API diretamente, você pode usar a URL disponibilizada:
+
+**URL de Teste:** http://34.55.170.193:3333/api/v1
+
 ### Banco de Dados
 
 O projeto utiliza PostgreSQL com a seguinte estrutura de tabela:
@@ -87,12 +93,6 @@ CREATE TABLE comments (
   deleted BOOLEAN DEFAULT false
 );
 ```
-
-## URL de Teste
-
-Para testar a API diretamente, você pode usar a URL disponibilizada:
-
-**URL de Teste:** http://34.55.170.193:3333/api/v1
 
 ## Collection Postman
 
