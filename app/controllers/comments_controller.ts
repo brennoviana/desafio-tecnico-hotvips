@@ -24,9 +24,10 @@ export default class CommentsController {
       return response.json(comment)
     } catch (error) {
       if (error instanceof CommentServiceNotFoundError) {
+        logger.error({ postId, payload, error }, 'Comment not found')
         return response.status(404).json({ error: error.message })
       }
-      logger.error(error)
+      logger.error({ postId, payload, error }, 'Failed to create comment')
       return response.status(500).json({ error: 'Failed to create comment'})
     }
   }
@@ -44,8 +45,9 @@ export default class CommentsController {
       logger.info({ commentId, payload }, 'Comment updated')
       return response.json(updatedComment)
     } catch (error) {
-      logger.error(error)
+      logger.error({ commentId, payload, error }, 'Failed to update comment')
       if (error instanceof CommentServiceNotFoundError) {
+        logger.error({ commentId, payload, error }, 'Comment not found')
         return response.status(404).json({ error: error.message })
       }
       return response.status(500).json({ error: 'Failed to update comment' })
@@ -65,8 +67,9 @@ export default class CommentsController {
       logger.info({ commentId, payload }, 'Comment approval updated')
       return response.json(updatedComment)
     } catch (error) {
-      logger.error(error)
+      logger.error({ commentId, payload, error }, 'Failed to update comment approval')
       if (error instanceof CommentServiceNotFoundError) {
+        logger.error({ commentId, payload, error }, 'Comment not found')
         return response.status(404).json({ error: error.message })
       }
       return response.status(500).json({ error: 'Failed to update comment approval'})
@@ -83,8 +86,9 @@ export default class CommentsController {
       logger.info({ commentId }, 'Deleting comment')
       return response.json({ message: 'Comment deleted' })
     } catch (error) {
-      logger.error(error)
+      logger.error({ commentId, error }, 'Failed to delete comment')
       if (error instanceof CommentServiceNotFoundError) {
+        logger.error({ commentId, error }, 'Comment not found')
         return response.status(404).json({ error: error.message })
       }
       return response.status(500).json({ error: 'Failed to delete comment'})
@@ -101,8 +105,9 @@ export default class CommentsController {
       logger.info({ postId }, 'Getting comments')
       return response.json(comments)
     } catch (error) {
-      logger.error(error)
+      logger.error({ postId, error }, 'Failed to get comments')
       if (error instanceof CommentServiceNotFoundError) {
+        logger.error({ postId, error }, 'Comment not found')
         return response.status(404).json({ error: error.message })
       }
       return response.status(500).json({ error: 'Failed to get comments'})
@@ -119,8 +124,9 @@ export default class CommentsController {
       logger.info({ postId }, 'Getting pending comments')
       return response.json(comments)
     } catch (error) {
-      logger.error(error)
+      logger.error({ postId, error }, 'Failed to get pending comments')
       if (error instanceof CommentServiceNotFoundError) {
+        logger.error({ postId, error }, 'Comment not found')
         return response.status(404).json({ error: error.message })
       }
       return response.status(500).json({ error: 'Failed to get pending comments'})
