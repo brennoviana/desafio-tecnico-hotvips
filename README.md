@@ -74,7 +74,7 @@ node ace test
 
 Para testar a API diretamente, você pode usar a URL disponibilizada:
 
-**URL de Teste:** http://34.55.170.193:3333/api/v1
+**URL de Teste:** http://34.55.6.197:3333/api/v1
 
 ### Banco de Dados
 
