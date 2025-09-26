@@ -75,7 +75,10 @@ test.group('Comments pending', () => {
     }
   })
 
-  test('should return empty array when no pending comments exist for post', async ({ client, assert }) => {
+  test('should return empty array when no pending comments exist for post', async ({
+    client,
+    assert,
+  }) => {
     class FakeCommentService extends CommentService {
       async getPendingCommentsByPostId(): Promise<CommentInterface[]> {
         return []
@@ -103,7 +106,7 @@ test.group('Comments pending', () => {
     }
   })
 
-  test('should return error when service fails', async ({ client, assert }) => {
+  test('should return error when service fails', async ({ client }) => {
     class FakeCommentService extends CommentService {
       async getPendingCommentsByPostId(): Promise<CommentInterface[]> {
         throw new Error('Database connection failed')

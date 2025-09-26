@@ -4,7 +4,7 @@ import CommentsController from '#controllers/comments_controller'
 import app from '@adonisjs/core/services/app'
 
 test.group('Comments destroy', () => {
-  test('should delete comment successfully', async ({ client, assert }) => {
+  test('should delete comment successfully', async ({ client }) => {
     class FakeCommentService extends CommentService {
       async deleteComment(): Promise<void> {
         // Simulate successful deletion
@@ -34,7 +34,7 @@ test.group('Comments destroy', () => {
     }
   })
 
-  test('should return error when comment deletion fails', async ({ client, assert }) => {
+  test('should return error when comment deletion fails', async ({ client }) => {
     class FakeCommentService extends CommentService {
       async deleteComment(): Promise<void> {
         throw new Error('Database connection failed')
@@ -63,7 +63,7 @@ test.group('Comments destroy', () => {
     }
   })
 
-  test('should return error when comment not found', async ({ client, assert }) => {
+  test('should return error when comment not found', async ({ client }) => {
     class FakeCommentService extends CommentService {
       async deleteComment(): Promise<void> {
         throw new Error('Comment not found')

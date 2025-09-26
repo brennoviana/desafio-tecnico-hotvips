@@ -103,7 +103,7 @@ test.group('Comments index', () => {
     }
   })
 
-  test('should return error when service fails', async ({ client, assert }) => {
+  test('should return error when service fails', async ({ client }) => {
     class FakeCommentService extends CommentService {
       async getCommentsByPostId(): Promise<CommentInterface[]> {
         throw new Error('Database connection failed')

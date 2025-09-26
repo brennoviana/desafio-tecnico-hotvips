@@ -55,7 +55,7 @@ test.group('Comments editApproval', () => {
     }
   })
 
-  test('should return error when comment approval update fails', async ({ client, assert }) => {
+  test('should return error when comment approval update fails', async ({ client }) => {
     class FakeCommentService extends CommentService {
       async updateComment(): Promise<CommentInterface> {
         throw new Error('Database connection failed')
