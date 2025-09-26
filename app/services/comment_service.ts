@@ -1,5 +1,12 @@
 import type { CommentInterface, CommentRepositoryInterface } from '#interfaces/comment_interface'
 
+export class CommentServiceError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'CommentServiceError'
+  }
+}
+
 export class CommentService {
   constructor(protected commentRepository: CommentRepositoryInterface) {}
 
@@ -7,7 +14,7 @@ export class CommentService {
     if (commentData.parentId) {
       const parentComment = await this.getParentCommentById(commentData.parentId)
       if (!parentComment) {
-        throw new Error('Parent comment not found')
+        throw new CommentServiceError('Parent comment not found')
       }
     }
 
@@ -21,7 +28,7 @@ export class CommentService {
   async getParentCommentById(id: number): Promise<CommentInterface | null> {
     const parentComment = await this.commentRepository.getCommentById(id)
     if (!parentComment) {
-      throw new Error('Parent comment not found')
+      throw new CommentServiceError('Parent comment not found')
     }
 
     return parentComment
@@ -33,12 +40,12 @@ export class CommentService {
   ): Promise<CommentInterface> {
     const existingComment = await this.commentRepository.getCommentById(id)
     if (!existingComment) {
-      throw new Error('Comment not found')
+      throw new CommentServiceError('Comment not found')
     }
 
     const updatedComment = await this.commentRepository.updateComment(id, commentData)
     if (!updatedComment) {
-      throw new Error('Failed to update comment')
+      throw new CommentServiceError('Failed to update comment')
     }
 
     return updatedComment
@@ -47,7 +54,7 @@ export class CommentService {
   async deleteComment(id: number): Promise<void> {
     const existingComment = await this.commentRepository.getCommentById(id)
     if (!existingComment) {
-      throw new Error('Comment not found')
+      throw new CommentServiceError('Comment not found')
     }
 
     const deleted = await this.commentRepository.softDelete(id)
