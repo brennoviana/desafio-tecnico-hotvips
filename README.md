@@ -19,22 +19,10 @@ Sistema de comentários robusto e escalável desenvolvido com AdonisJS, TypeScri
 - **Docker** para desenvolvimento e produção
 - **Collection Postman** incluída para testes
 
-## 📋 Índice
-
-- [Requisitos](#requisitos)
-- [Instalação](#instalação)
-- [Configuração](#configuração)
-- [Uso](#uso)
-- [API Endpoints](#api-endpoints)
-- [Estrutura do Projeto](#estrutura-do-projeto)
-- [Testes](#testes)
-- [Docker](#docker)
-- [Collection Postman](#collection-postman)
-
 ## 💻 Requisitos
 
 - **Node.js** 22+
-- **PostgreSQL** 12+
+- **PostgreSQL** 17+
 - **Docker** (opcional, mas recomendado)
 - **npm**
 
@@ -77,6 +65,8 @@ node ace migration:run
 
 # Inicie o servidor de desenvolvimento
 npm run dev
+
+# A aplicação estará disponível em http://localhost:3333
 ```
 
 ### Banco de Dados
