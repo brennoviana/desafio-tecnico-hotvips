@@ -1,5 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
-import  { type CommentService, CommentServiceError } from '../services/comment_service.js'
+import  { type CommentService, CommentServiceNotFoundError } from '../services/comment_service.js'
 import {
   createCommentValidator,
   editCommentValidator,
@@ -23,11 +23,11 @@ export default class CommentsController {
 
       return response.json(comment)
     } catch (error) {
-      if (error instanceof CommentServiceError) {
-        return response.status(400).json({ error: error.message })
+      if (error instanceof CommentServiceNotFoundError) {
+        return response.status(404).json({ error: error.message })
       }
       logger.error(error)
-      return response.status(400).json({ error: 'Failed to create comment'})
+      return response.status(500).json({ error: 'Failed to create comment'})
     }
   }
 
@@ -45,10 +45,10 @@ export default class CommentsController {
       return response.json(updatedComment)
     } catch (error) {
       logger.error(error)
-      if (error instanceof CommentServiceError) {
-        return response.status(400).json({ error: error.message })
+      if (error instanceof CommentServiceNotFoundError) {
+        return response.status(404).json({ error: error.message })
       }
-      return response.status(404).json({ error: 'Failed to update comment' })
+      return response.status(500).json({ error: 'Failed to update comment' })
     }
   }
 
@@ -66,10 +66,10 @@ export default class CommentsController {
       return response.json(updatedComment)
     } catch (error) {
       logger.error(error)
-      if (error instanceof CommentServiceError) {
-        return response.status(400).json({ error: error.message })
+      if (error instanceof CommentServiceNotFoundError) {
+        return response.status(404).json({ error: error.message })
       }
-      return response.status(404).json({ error: 'Failed to update comment approval'})
+      return response.status(500).json({ error: 'Failed to update comment approval'})
     }
   }
 
@@ -84,10 +84,10 @@ export default class CommentsController {
       return response.json({ message: 'Comment deleted' })
     } catch (error) {
       logger.error(error)
-      if (error instanceof CommentServiceError) {
-        return response.status(400).json({ error: error.message })
+      if (error instanceof CommentServiceNotFoundError) {
+        return response.status(404).json({ error: error.message })
       }
-      return response.status(404).json({ error: 'Failed to delete comment'})
+      return response.status(500).json({ error: 'Failed to delete comment'})
     }
   }
 
@@ -102,10 +102,10 @@ export default class CommentsController {
       return response.json(comments)
     } catch (error) {
       logger.error(error)
-      if (error instanceof CommentServiceError) {
-        return response.status(400).json({ error: error.message })
+      if (error instanceof CommentServiceNotFoundError) {
+        return response.status(404).json({ error: error.message })
       }
-      return response.status(400).json({ error: 'Failed to get comments'})
+      return response.status(500).json({ error: 'Failed to get comments'})
     }
   }
 
@@ -120,10 +120,10 @@ export default class CommentsController {
       return response.json(comments)
     } catch (error) {
       logger.error(error)
-      if (error instanceof CommentServiceError) {
-        return response.status(400).json({ error: error.message })
+      if (error instanceof CommentServiceNotFoundError) {
+        return response.status(404).json({ error: error.message })
       }
-      return response.status(400).json({ error: 'Failed to get pending comments'})
+      return response.status(500).json({ error: 'Failed to get pending comments'})
     }
   }
 }

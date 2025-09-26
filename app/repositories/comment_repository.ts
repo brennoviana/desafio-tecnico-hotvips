@@ -3,7 +3,6 @@ import type { CommentInterface, CommentRepositoryInterface } from '#interfaces/c
 
 export class CommentRepository implements CommentRepositoryInterface {
   
-
   async createComment(commentData: Partial<CommentInterface>): Promise<CommentInterface> {
     const { createdAt, updatedAt, ...data } = commentData
     const comment = await Comment.create(data)
