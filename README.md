@@ -107,3 +107,23 @@ O projeto inclui uma collection completa do Postman (`HotVips.postman_collection
 - ✅ **Edit comment** - Editar texto do comentário
 - ✅ **Approve or reject comment** - Moderar comentário
 - ✅ **Delete comment** - Deletar comentário (soft delete)
+
+## Decisões Técnicas
+
+### Arquitetura
+- **AdonisJS** como framework principal pela robustez e convenções claras
+- **TypeScript** para tipagem estática e melhor manutenibilidade
+- **PostgreSQL** para suporte nativo a relacionamentos hierárquicos
+- **Arquitetura em camadas** (Controller → Service → Repository) para separação de responsabilidades com DIP
+
+### Banco de Dados
+- **Soft delete** para preservar histórico de comentários
+- **Índices** em `postId` e `parentId` para otimizar consultas hierárquicas
+- **Status de moderação** para controle de aprovação de comentários
+- **Relacionamento self-referencing** para comentários aninhados
+
+### Desenvolvimento
+- **Docker** para ambiente consistente entre desenvolvimento e produção
+- **Npm** como gerenciador de pacotes para performance
+- **Testes funcionais** com Jest para garantir qualidade
+- **Collection Postman** para documentação e testes da API
